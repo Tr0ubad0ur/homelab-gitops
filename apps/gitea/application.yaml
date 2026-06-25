@@ -33,6 +33,10 @@ spec:
             username: admin
             password: changeme123
             email: admin@gitea.lab
+        redis-cluster:
+          enabled: false
+        redis:
+          enabled: false
         postgresql-ha:
           enabled: false
         postgresql:
