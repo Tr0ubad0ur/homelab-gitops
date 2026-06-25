@@ -1,0 +1,48 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitea
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://dl.gitea.com/charts/
+    chart: gitea
+    targetRevision: 10.6.0
+    helm:
+      values: |
+        service:
+          http:
+            type: ClusterIP
+        ingress:
+          enabled: true
+          className: nginx
+          annotations:
+            cert-manager.io/cluster-issuer: homelab-ca-issuer
+          hosts:
+            - host: gitea.lab
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: gitea-tls
+              hosts:
+                - gitea.lab
+        gitea:
+          admin:
+            username: admin
+            password: changeme123
+            email: admin@gitea.lab
+        postgresql-ha:
+          enabled: false
+        postgresql:
+          enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitea
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
