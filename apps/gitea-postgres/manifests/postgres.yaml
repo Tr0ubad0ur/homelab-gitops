@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitea-postgres-secret
+  namespace: gitea
+stringData:
+  POSTGRES_DB: gitea
+  POSTGRES_USER: gitea
+  POSTGRES_PASSWORD: giteapassword
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: gitea-postgres
+  namespace: gitea
+spec:
+  serviceName: gitea-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gitea-postgres
+  template:
+    metadata:
+      labels:
+        app: gitea-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          envFrom:
+            - secretRef:
+                name: gitea-postgres-secret
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitea-postgres
+  namespace: gitea
+spec:
+  selector:
+    app: gitea-postgres
+  ports:
+    - port: 5432

@@ -33,6 +33,13 @@ spec:
             username: admin
             password: changeme123
             email: admin@gitea.lab
+          config:
+            database:
+              DB_TYPE: postgres
+              HOST: gitea-postgres:5432
+              NAME: gitea
+              USER: gitea
+              PASSWD: giteapassword
         redis-cluster:
           enabled: false
         redis:
@@ -40,11 +47,7 @@ spec:
         postgresql-ha:
           enabled: false
         postgresql:
-          enabled: true
-          image:
-            registry: docker.io
-            repository: postgres
-            tag: "16-alpine"
+          enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: gitea
