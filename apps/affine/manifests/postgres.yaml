@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: affine-postgres-secret
+  namespace: affine
+stringData:
+  POSTGRES_DB: affine
+  POSTGRES_USER: affine
+  POSTGRES_PASSWORD: affine
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: affine-postgres
+  namespace: affine
+spec:
+  serviceName: affine-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: affine-postgres
+  template:
+    metadata:
+      labels:
+        app: affine-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          envFrom:
+            - secretRef:
+                name: affine-postgres-secret
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: affine-postgres
+  namespace: affine
+spec:
+  selector:
+    app: affine-postgres
+  ports:
+    - port: 5432
