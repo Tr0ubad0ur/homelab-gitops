@@ -76,6 +76,8 @@ spec:
         - name: affine-config
           persistentVolumeClaim:
             claimName: affine-config
+      imagePullSecrets:
+        - name: ghcr-secret
 ---
 apiVersion: v1
 kind: Service
