@@ -76,8 +76,6 @@ spec:
           ports:
             - containerPort: 3010
           env:
-            - name: NODE_OPTIONS
-              value: "--import=./scripts/register.js"
             - name: AFFINE_CONFIG_PATH
               value: "/root/.affine/config"
             - name: REDIS_SERVER_HOST
