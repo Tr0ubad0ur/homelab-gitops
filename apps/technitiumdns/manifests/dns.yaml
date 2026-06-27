@@ -34,6 +34,8 @@ spec:
       labels:
         app: technitium-dns
     spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       containers:
         - name: dns-server
           image: technitium/dns-server:13.1.1
@@ -51,9 +53,6 @@ spec:
           env:
             - name: TZ
               value: "UTC"
-            # Optional: Uncomment if you want to set an admin password on boot
-            # - name: DNS_SERVER_ADMIN_PASSWORD
-            #   value: "YourSecurePassword"
           volumeMounts:
             - name: config-volume
               mountPath: /etc/dns
@@ -68,19 +67,22 @@ metadata:
   name: technitium-dns-service
   namespace: technitium-dns
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: technitium-dns
   ports:
     - name: dns-udp
       port: 53
       targetPort: 53
+      nodePort: 30053
       protocol: UDP
     - name: dns-tcp
       port: 53
       targetPort: 53
+      nodePort: 30053
       protocol: TCP
     - name: web-http
       port: 5380
       targetPort: 5380
+      nodePort: 30378
       protocol: TCP
